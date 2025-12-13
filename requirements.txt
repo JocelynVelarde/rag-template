@@ -1,0 +1,6 @@
+streamlit
+pymongo
+langchain
+langchain-google-genai
+langchain-mongodb
+python-dotenv
