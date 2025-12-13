@@ -106,3 +106,7 @@ rag-template/
 ├── README.md                # Project documentation
 └── test.py                  # (Optional) Script for testing backend functions
 ```
+
+## 🙏 Acknowledgements
+* This project was initially based on/inspired by the work of [JocelynVelarde](https://github.com/JocelynVelarde/rag-template.git).
+* Enhanced with PDF support, rate-limit handling, and UI improvements by [Noor Fatima](https://github.com/NNoorFatima/RAG.git).
