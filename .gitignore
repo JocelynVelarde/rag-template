@@ -2,7 +2,7 @@
 __pycache__/
 *.py[codz]
 *$py.class
-./streamlit/
+./streamlit/secrets.toml
 # C extensions
 *.so
 

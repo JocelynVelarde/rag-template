@@ -36,22 +36,18 @@ def get_rag_response(query):
 
     llm = ChatGoogleGenerativeAI(model="gemini-2.5-flash")
     retriever = vector_store.as_retriever(search_kwargs={"k": 3})
+    docs = retriever.invoke(query)
+
+    context_text = "\n\n".join([doc.page_content for doc in docs])
 
     prompt = ChatPromptTemplate.from_messages([
-        (
-            "system",
-            "Use the following context to answer. "
-            ".\n\n{context}"
-        ),
+        ("system", "Use the following context to answer:\n\n{context}"),
         ("human", "{question}")
     ])
-    chain = (
-        {
-            "context": retriever,
-            "question": RunnablePassthrough(),
-        }
-        | prompt
-        | llm
-        | StrOutputParser()
-    )
-    return chain.invoke(query)
+
+    chain = prompt | llm | StrOutputParser()
+    answer = chain.invoke({"context": context_text, "question": query})
+    return {
+        "answer": answer, 
+        "sources": docs
+    }
