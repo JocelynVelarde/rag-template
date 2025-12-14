@@ -2,6 +2,8 @@
 
 This project is a Retrieval-Augmented Generation (RAG) system template. It leverages **Google Gemini** for generation and embeddings, and **MongoDB Atlas** as the vector store to manage and retrieve context for answering user queries.
 
+Slides for the GHW stream can be found [here](https://docs.google.com/presentation/d/1Gc8J4m8BhTV75zy3ucVO8pPW-5iZwjdtxBIzBAYyA3w/edit?usp=sharing) 
+
 ## Features
 
 * **Vector Store**: Uses MongoDB Atlas Vector Search to store and retrieve document embeddings.
