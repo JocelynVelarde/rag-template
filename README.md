@@ -1,88 +1,112 @@
-# RAG System Template with Google Gemini & MongoDB Atlas
+# 🦜🔗 RAG 
 
-This project is a Retrieval-Augmented Generation (RAG) system template. It leverages **Google Gemini** for generation and embeddings, and **MongoDB Atlas** as the vector store to manage and retrieve context for answering user queries.
+This is a Retrieval-Augmented Generation (RAG) application built with **Streamlit**, **MongoDB Atlas**, and **Google Gemini**. It allows users to upload PDF documents or enter raw text, which is then embedded and stored in a vector database. Users can then chat with their data to get accurate, context-aware answers.
 
-Slides for the GHW stream can be found [here](https://docs.google.com/presentation/d/1Gc8J4m8BhTV75zy3ucVO8pPW-5iZwjdtxBIzBAYyA3w/edit?usp=sharing) 
+##  Features
 
-## Features
+* **Dual Ingestion:** Support for uploading PDF files and entering raw text manually.
+* **Vector Search:** Uses MongoDB Atlas Vector Search to store and retrieve relevant context.
+* **Google Gemini Integration:**
+    * **Embeddings:** Uses `text-embedding-004` for high-quality text representation.
+    * **LLM:** Uses `gemini-2.5-flash` for fast and accurate answer generation.
+* **Rate Limit Handling:** Includes batch processing to respect Google's free tier API limits.
+* **Interactive UI:** Clean web interface built with Streamlit.
 
-* **Vector Store**: Uses MongoDB Atlas Vector Search to store and retrieve document embeddings.
-* **Embeddings**: Powered by Google's `model/embeddings-001`.
-* **LLM**: Uses Google's `gemini-2.5-flash` model for generating responses.
-* **Framework**: Built using [LangChain](https://www.langchain.com/) and [Streamlit](https://streamlit.io/).
+##  Tech Stack
 
-## Prerequisites
+* **Language:** Python 3.11+
+* **Frontend:** Streamlit
+* **Database:** MongoDB Atlas (Vector Search)
+* **AI/LLM:** Google Gemini (via `langchain-google-genai`)
+* **Framework:** LangChain
+* **PDF Parsing:** `pypdf`
 
-Before running the application, ensure you have the following:
+---
 
-1.  **Python 3.8+** installed.
-2.  A **MongoDB Atlas** cluster with a vector search index configured.
-3.  A **Google Cloud Project** with the Generative AI API enabled and an API key.
+##  Setup & Installation
 
-## Installation
+### 1. Clone the Repository
+```bash
+git clone <your-repo-url>
+cd rag-template
+```
+### 2. Create a Virtual Environment
+It is recommended to use a virtual environment to manage dependencies.
+```bash
+# Windows
+python -m venv venv
+venv\Scripts\activate
 
-1.  **Clone the repository:**
-    ```bash
-    git clone <your-repo-url>
-    cd <your-repo-directory>
-    ```
-
-2.  **Create and activate a virtual environment (recommended):**
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows use `venv\Scripts\activate`
-    ```
-
-3.  **Install dependencies:**
-    ```bash
-    pip install -r requirements.txt
-    ```
-
-## Configuration
-
-This project uses `streamlit.secrets` for managing sensitive configuration. You typically need to configure two main components: MongoDB and Google AI.
-
-1.  **Create a secrets file:**
-    Create a folder named `.streamlit` in your project root and add a file named `secrets.toml`:
-
-    ```toml
-    # .streamlit/secrets.toml
-    MONGO_URI = "mongodb+srv://<username>:<password>@<cluster>.mongodb.net/?retryWrites=true&w=majority"
-    ```
-
-2.  **Environment Variables:**
-    The LangChain Google integration typically requires the `GOOGLE_API_KEY` environment variable. You can set this in your terminal or add it to a `.env` file (if you extend the setup to load it):
-
-    ```bash
-    export GOOGLE_API_KEY="your-google-api-key"
-    ```
-
-3.  **MongoDB Atlas Setup:**
-    Ensure your MongoDB collection (`vector_store_database.embeddings_stream`) has a Vector Search Index named `vector_index_ghw`.
-
-    * **Database Name:** `vector_store_database`
-    * **Collection Name:** `embeddings_stream`
-    * **Index Name:** `vector_index_ghw`
-
-    *Example Index Definition:*
-    ```json
+# Mac/Linux
+python3 -m venv venv
+source venv/bin/activate
+```
+### 3. Install Dependencies
+```bash 
+pip install -r requirements.txt
+```
+### 4. MongoDB Atlas Setup
+* Create a cluster on MongoDB Atlas.
+* Create a database named `vector_storedb`.
+* Create a collection named `embeddings_rag`.
+* Go to the Atlas Search tab, click Create Search Index, select JSON Editor, and paste the following configuration (select the `embeddings_rag` collection):
+```bash
+{
+  "fields": [
     {
-      "fields": [
-        {
-          "numDimensions": 768,
-          "path": "embedding",
-          "similarity": "cosine",
-          "type": "vector"
-        }
-      ]
+      "numDimensions": 768,
+      "path": "embedding",
+      "similarity": "cosine",
+      "type": "vector"
     }
-    ```
+  ]
+}
+```
+* Name the index: `vector_index_rag`.
+
+### 5. Configuration (Secrets)
+Create a .streamlit folder in the root directory and add a secrets.toml file:
+```bash
+mkdir .streamlit
+# Create file .streamlit/secrets.toml
+```
+Add your MongoDB URI and Google API Key to secrets.toml:
+```bash
+[general]
+MONGO_URI = "mongodb+srv://<username>:<password>@<cluster-url>/?retryWrites=true&w=majority&appName=Cluster0"
+GOOGLE_API_KEY = "your_google_gemini_api_key"
+```
+Note: Ensure your MongoDB user has read/write permissions and your IP is whitelisted in Network Access.
 
 ## Usage
+Run the Streamlit application:
+```bash
+streamlit run app.py
+```
+### Ingest Data:
 
-The core logic is contained in `backend.py`. You can import these functions into a Streamlit frontend or another Python script.
+* Upload a PDF in the "Upload PDF" section.
+* Paste text in the "Ingest Raw Text" section.
+* Wait for the success message (data is being chunked and saved to MongoDB).
 
-### Key Functions
+### Ask Questions:
 
-* `ingest_text(text_content)`: Takes a string of text, creates a document, calculates its embedding, and stores it in MongoDB.
-* `get_rag_response(query)`: Performs a similarity search for the top 3 relevant documents in MongoDB and uses the Gemini LLM to answer the `query` based on that context.
+* Type a question in the chat box (e.g., "What is the summary of the document I just uploaded?").
+* The app will retrieve the most relevant chunks from MongoDB and generate an answer using Gemini.
+## Project Structure
+```bash
+rag-template/
+│
+├── .streamlit/
+│   └── secrets.toml         # API Keys (Do not commit to GitHub)
+│
+├── app.py                   # Frontend UI (Streamlit)
+├── backend.py               # Logic for DB connection, Ingestion & RAG
+├── requirements.txt         # Project dependencies
+├── README.md                # Project documentation
+└── test.py                  # (Optional) Script for testing backend functions
+```
+
+## 🙏 Acknowledgements
+* This project was initially based on/inspired by the work of [JocelynVelarde](https://github.com/JocelynVelarde/rag-template.git).
+* Enhanced with PDF support, rate-limit handling, and UI improvements by [Noor Fatima](https://github.com/NNoorFatima/RAG.git).
