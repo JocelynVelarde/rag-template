@@ -6,3 +6,5 @@ langchain-mongodb
 python-dotenv
 sentence-transformers
 langchain_community
+plotly
+scikit-learn
