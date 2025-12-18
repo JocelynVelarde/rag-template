@@ -50,3 +50,24 @@ def get_rag_response(query):
         "answer": answer, 
         "sources": docs
     }
+
+def get_vectors_for_visualization(query):
+    vector_store = get_vector_store()
+    embeddings = vector_store.embeddings
+    query_vector = embeddings.embed_query(query)
+
+    retriever = vector_store.as_retriever(search_kwargs={"k": 5})
+    docs = retriever.invoke(query)
+
+    doc_data = []
+    for doc in docs:
+        vec = embeddings.embed_query(doc.page_content)
+        doc_data.append({
+            "content": doc.page_content,
+            "vector": vec,
+            "type": "Document"
+        })
+    return {
+        "query_vector": query_vector,
+        "docs": doc_data
+    }
