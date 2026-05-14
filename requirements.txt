@@ -8,3 +8,4 @@ sentence-transformers
 langchain_community
 plotly
 scikit-learn
+torchvision
